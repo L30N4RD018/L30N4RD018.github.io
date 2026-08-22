@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de Privacidad — JobsTracker</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+  <h1>Política de Privacidad</h1>
+  <p class="tenue">JobsTracker · Última actualización: 22 de agosto de 2026</p>
+</header>
+
+<p>JobsTracker es una aplicación personal, de un solo usuario, desarrollada y operada por
+Leonardo Mendoza Martínez. No se ofrece a terceros, no admite registro de otras personas y no
+tiene ánimo de lucro. El único usuario cuyos datos trata la aplicación es su propio
+desarrollador.</p>
+
+<h2>Qué datos se tratan</h2>
+<table>
+  <tr><th>Dato</th><th>De dónde sale</th><th>Para qué</th></tr>
+  <tr>
+    <td>Contenido y metadatos de mensajes de correo</td>
+    <td>API de Gmail, permiso <code>gmail.readonly</code></td>
+    <td>Identificar correos de procesos de selección y extraer de ellos empresa, cargo, fecha y estado</td>
+  </tr>
+  <tr>
+    <td>Dirección de correo de la cuenta</td>
+    <td>API de Gmail</td>
+    <td>Confirmar sobre qué cuenta se está trabajando</td>
+  </tr>
+  <tr>
+    <td>Identificador de chat de Telegram</td>
+    <td>El propio usuario, al escribirle a su bot</td>
+    <td>Enviar los avisos a ese chat y a ningún otro</td>
+  </tr>
+</table>
+
+<p>La aplicación solo consulta correos de un conjunto reducido de remitentes conocidos
+—portales de empleo y sistemas de seguimiento de candidatos—. No indexa el buzón completo.</p>
+
+<h2>Permisos de Google que se solicitan</h2>
+<p>Uno solo:</p>
+<ul>
+  <li><code>https://www.googleapis.com/auth/gmail.readonly</code> — lectura de mensajes y su
+  configuración.</li>
+</ul>
+<p>Este permiso es de <strong>solo lectura</strong>. La aplicación es técnicamente incapaz de
+enviar, responder, reenviar, etiquetar, archivar o eliminar correo, porque Google no le concede
+esas capacidades con este permiso.</p>
+
+<h2>Dónde se almacenan los datos</h2>
+<ul>
+  <li>Los datos extraídos se guardan en una base de datos <strong>SQLite en el computador
+  personal del usuario</strong>. No hay servidor remoto ni base de datos alojada.</li>
+  <li>Las credenciales de acceso (el token de OAuth de Google y el token del bot de Telegram) se
+  guardan en el <strong>llavero del sistema operativo</strong> (Secret Service de freedesktop),
+  no en archivos de texto.</li>
+  <li>No se guarda copia de los correos completos: solo los campos extraídos y una referencia al
+  identificador del mensaje original.</li>
+</ul>
+
+<h2>Con quién se comparten</h2>
+<p><strong>Con nadie.</strong> No se venden, alquilan ni ceden datos. No se transfieren a
+terceros. No se usan para publicidad ni para elaborar perfiles. No se emplean para entrenar
+modelos de inteligencia artificial, ni propios ni de terceros.</p>
+
+<p>Los únicos servicios externos que intervienen son:</p>
+<ul>
+  <li><strong>API de Gmail (Google)</strong>, de donde se leen los correos.</li>
+  <li><strong>API de Telegram</strong>, a la que se envía el texto del aviso, dirigido
+  exclusivamente al chat privado del propio usuario.</li>
+</ul>
+
+<h2>Uso limitado de los datos de Google</h2>
+<p>El uso y la transferencia que JobsTracker hace de la información recibida de las APIs de
+Google se ajusta a la
+<a href="https://developers.google.com/terms/api-services-user-data-policy">Política de Datos
+de Usuario de los Servicios de la API de Google</a>, incluidos sus requisitos de
+<em>Uso Limitado</em>. En particular, los datos obtenidos de Gmail se emplean únicamente para
+la funcionalidad descrita en esta página, visible para el propio usuario, y no se transfieren a
+terceros salvo obligación legal.</p>
+
+<h2>Cuánto tiempo se conservan</h2>
+<p>Mientras el usuario mantenga la aplicación instalada. Al ser una base de datos local, borrar
+el archivo elimina los datos de forma definitiva.</p>
+
+<h2>Cómo revocar el acceso</h2>
+<p>En cualquier momento, desde
+<a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>,
+seleccionando JobsTracker y retirando el acceso. A partir de ese momento la aplicación deja de
+poder leer correo. Los datos ya extraídos se eliminan borrando la base de datos local.</p>
+
+<h2>Contacto</h2>
+<p>Leonardo Mendoza Martínez — <a href="mailto:leonardomendoza2003@gmail.com">leonardomendoza2003@gmail.com</a></p>
+
+<nav>
+  <a href="index.html">Inicio</a>
+  <a href="condiciones.html">Condiciones del Servicio</a>
+</nav>
+</body>
+</html>
