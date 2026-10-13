@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonardo Mendoza · Backend & Data Engineer</title>
+<meta name="google-site-verification" content="239ySM_xJN8X4elg4GWDnnhvbyPwCKedfEhwjFfWg6w">
+<meta name="description" content="Leonardo Mendoza, ingeniero backend y de datos en Python. Plataformas en producción, extracción de datos de fuentes públicas y visores geográficos.">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:title" content="Leonardo Mendoza · Backend & Data Engineer">
+<meta property="og:description" content="Python, FastAPI y PostgreSQL. Plataformas en producción, extracción de datos y visores geográficos.">
+<meta property="og:image" content="https://l30n4rd018.github.io/img/geovisor-nacional.webp">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1020'/%3E%3Ccircle cx='11' cy='12' r='3' fill='%235eead4'/%3E%3Ccircle cx='21' cy='19' r='4' fill='%23818cf8'/%3E%3Ccircle cx='13' cy='22' r='2' fill='%235eead4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b1020;
+  --bg-2: #0f1529;
+  --card: rgba(148, 163, 255, .045);
+  --card-hover: rgba(148, 163, 255, .08);
+  --line: rgba(148, 163, 255, .12);
+  --text: #e6e9f5;
+  --muted: #94a0bf;
+  --dim: #66708f;
+  --teal: #5eead4;
+  --indigo: #818cf8;
+  --accent: #5eead4;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--muted);
+  font: 16px/1.7 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--text); text-decoration: none; }
+::selection { background: rgba(94, 234, 212, .3); color: #fff; }
+html:not([data-lang="en"]) .en, html[data-lang="en"] .es { display: none !important; }
+
+/* luz que sigue el cursor */
+.spot { pointer-events: none; position: fixed; inset: 0; z-index: 0; transition: background .3s;
+  background: radial-gradient(600px circle at var(--mx, 30%) var(--my, 20%), rgba(129, 140, 248, .10), transparent 70%); }
+
+.shell { position: relative; z-index: 1; max-width: 76rem; margin: 0 auto; padding: 0 1.5rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 4rem; }
+
+/* columna izquierda */
+.side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 5rem 0 2.5rem; }
+.side h1 { color: var(--text); font-size: clamp(2.2rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.03em; margin: 0; font-weight: 700; }
+.role { color: var(--text); font-size: 1.15rem; font-weight: 500; margin: .7rem 0 0; }
+.tag { max-width: 22rem; margin: .9rem 0 0; }
+.toc { list-style: none; padding: 0; margin: 2.25rem 0 0; }
+.toc a { display: inline-flex; align-items: center; gap: 1rem; padding: .35rem 0; font-family: var(--mono);
+  font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.toc a::before { content: ""; width: 2rem; height: 1px; background: currentColor; transition: width .2s, background .2s; }
+.toc a:hover, .toc a.on { color: var(--text); }
+.toc a:hover::before, .toc a.on::before { width: 4rem; background: var(--text); }
+
+.side > *:not(.map) { position: relative; z-index: 2; }
+.side nav { margin-bottom: auto; width: max-content; }
+.map { position: absolute; z-index: 1; right: -1rem; top: 15.5rem; bottom: 4.5rem; width: 64%; margin: 0; }
+.map canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map figcaption { position: absolute; right: 0; bottom: 0; text-align: right; font-family: var(--mono); font-size: .68rem; line-height: 1.5; color: var(--dim); max-width: 15rem; }
+.map figcaption b { color: var(--text); font-weight: 500; }
+.legend { display: flex; justify-content: flex-end; gap: .9rem; margin-top: .25rem; }
+.legend i { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .35rem; vertical-align: middle; }
+.tip { position: absolute; pointer-events: none; transform: translate(-50%, -130%); white-space: nowrap; font-family: var(--mono);
+  font-size: .72rem; color: var(--text); background: rgba(15, 21, 41, .92); border: 1px solid var(--line); padding: .25rem .5rem;
+  border-radius: .35rem; opacity: 0; transition: opacity .12s; }
+
+.social { display: flex; align-items: center; gap: 1.1rem; }
+.social a { color: var(--muted); display: inline-flex; transition: color .15s, transform .15s; }
+.social a:hover { color: var(--text); transform: translateY(-2px); }
+.social svg { width: 1.3rem; height: 1.3rem; }
+.lang { margin-left: auto; font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; color: var(--muted);
+  background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: .3rem .75rem; cursor: pointer; }
+.lang:hover { color: var(--text); border-color: var(--muted); }
+
+/* columna derecha */
+main { padding: 5rem 0 4rem; }
+section { scroll-margin-top: 4rem; margin-bottom: 7rem; }
+.label { display: none; }
+main p { margin: 0 0 1rem; }
+main strong, .hi { color: var(--text); font-weight: 500; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line);
+  border-radius: .8rem; overflow: hidden; margin-top: 2rem; }
+.stats div { background: var(--bg); padding: 1rem 1.1rem; }
+.stats b { display: block; color: var(--text); font-size: 1.5rem; font-weight: 600; letter-spacing: -.02em; }
+.stats span { font-size: .8rem; line-height: 1.45; display: block; margin-top: .2rem; }
+
+/* tarjetas: proyectos y experiencia */
+.list { list-style: none; margin: 0; padding: 0; }
+.list:hover .item { opacity: .55; }
+.list .item:hover { opacity: 1; }
+.item { position: relative; display: grid; grid-template-columns: 9rem 1fr; gap: 1.25rem; padding: 1.25rem; margin: 0 -1.25rem .5rem;
+  border-radius: .75rem; transition: background .2s, opacity .2s, box-shadow .2s; }
+.item:hover { background: var(--card-hover); box-shadow: inset 0 1px 0 rgba(148, 163, 255, .1), 0 10px 30px -15px rgba(0, 0, 0, .6); }
+.item .when { font-family: var(--mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); padding-top: .3rem; }
+.item .thumb { align-self: start; border-radius: .4rem; border: 1px solid var(--line); overflow: hidden; margin-top: .3rem; background: var(--bg-2); }
+.item .thumb img { transition: transform .4s; }
+.item:hover .thumb img { transform: scale(1.04); }
+.item h3 { color: var(--text); font-size: 1rem; font-weight: 500; line-height: 1.4; margin: 0 0 .45rem; }
+.item h3 a::after { content: ""; position: absolute; inset: 0; border-radius: .75rem; }
+.item h3 .arrow { display: inline-block; transition: transform .2s; margin-left: .25rem; color: var(--muted); }
+.item:hover h3 { color: var(--accent); }
+.item:hover h3 .arrow { transform: translate(3px, -3px); color: var(--accent); }
+.item p { font-size: .92rem; line-height: 1.65; margin: 0; }
+.item ul { margin: .5rem 0 0; padding-left: 1rem; font-size: .9rem; }
+.item li { margin: .25rem 0; }
+.item .sub { color: var(--muted); font-weight: 400; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .85rem; }
+.chips span { font-family: var(--mono); font-size: .7rem; color: var(--accent); background: rgba(94, 234, 212, .08);
+  padding: .2rem .65rem; border-radius: 999px; }
+.links { position: relative; z-index: 2; display: flex; gap: 1rem; margin-top: .7rem; font-size: .85rem; }
+.links a { color: var(--text); border-bottom: 1px solid var(--line); }
+.links a:hover { color: var(--accent); border-color: var(--accent); }
+.badge { font-family: var(--mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--teal);
+  border: 1px solid rgba(94, 234, 212, .35); border-radius: 999px; padding: .05rem .5rem; margin-left: .4rem; vertical-align: middle; }
+
+.cv { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1rem; color: var(--text); font-weight: 500; border-bottom: 1px solid var(--line); }
+.cv:hover { color: var(--accent); border-color: var(--accent); }
+
+.pub { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.pub:last-child { border-bottom: 0; }
+.pub a { color: var(--text); font-weight: 500; overflow-wrap: anywhere; }
+.pub a:hover { color: var(--accent); }
+.pub small { display: block; font-family: var(--mono); font-size: .7rem; color: var(--dim); margin-top: .3rem; }
+
+.skills { display: grid; grid-template-columns: 8rem 1fr; gap: .6rem 1.25rem; font-size: .92rem; }
+.skills dt { font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding-top: .2rem; }
+.skills dd { margin: 0; color: var(--text); }
+
+.contact { border: 1px solid var(--line); border-radius: 1rem; padding: 2rem; background:
+  radial-gradient(500px circle at 100% 0%, rgba(94, 234, 212, .08), transparent 60%), var(--card); }
+.contact h2 { color: var(--text); font-size: 1.6rem; letter-spacing: -.02em; margin: 0 0 .6rem; }
+.btn { max-width: 100%; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: .5rem; margin-top: .75rem; padding: .7rem 1.2rem; border-radius: .55rem;
+  font-weight: 500; font-size: .95rem; color: var(--bg); background: var(--accent); transition: transform .15s, box-shadow .15s; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -10px rgba(94, 234, 212, .6); }
+
+footer { font-size: .78rem; color: var(--dim); max-width: 32rem; }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--text); }
+footer nav { display: flex; gap: 1rem; margin-top: .6rem; }
+
+/* entrada al hacer scroll */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* móvil y tableta */
+@media (max-width: 64rem) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0 1rem; }
+  .side { position: relative; height: auto; padding: 3.5rem 0 1rem; }
+  .toc { display: none; }
+  .map { position: relative; right: auto; top: auto; bottom: auto; width: 100%; flex: none; height: min(115vw, 34rem); margin: 1.5rem 0; }
+  .map figcaption { left: 0; right: auto; text-align: left; }
+  .legend { justify-content: flex-start; }
+  main { padding-top: 1rem; }
+  section { margin-bottom: 4.5rem; }
+  .label { display: block; position: sticky; top: 0; z-index: 5; margin: 0 -1rem 1.25rem; padding: .9rem 1rem;
+    background: rgba(11, 16, 32, .85); backdrop-filter: blur(8px); color: var(--text); font-family: var(--mono);
+    font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; }
+}
+@media (max-width: 40rem) {
+  .item { grid-template-columns: 1fr; gap: .5rem; margin: 0 0 .5rem; padding: 1rem 0; }
+  .item:hover { background: none; box-shadow: none; }
+  .list:hover .item { opacity: 1; }
+  .item .thumb { max-width: 16rem; order: 2; }
+  .stats { grid-template-columns: 1fr; }
+  .skills { grid-template-columns: 1fr; gap: .1rem; }
+  .skills dd { margin-bottom: .6rem; }
+}
+</style>
+<script>
+try {
+  var saved = localStorage.getItem("lang");
+  var l = saved || ((navigator.language || "es").toLowerCase().indexOf("es") === 0 ? "es" : "en");
+  document.documentElement.dataset.lang = l;
+  document.documentElement.lang = l;
+} catch (e) {}
+</script>
+</head>
+<body>
+<div class="spot" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <!-- ============ COLUMNA IZQUIERDA ============ -->
+  <header class="side">
+    <h1>Leonardo Mendoza</h1>
+    <p class="role">Backend & Data Engineer</p>
+    <p class="tag">
+      <span class="es">Construyo backends y flujos de datos en Python que funcionan con información real, no con la de los tutoriales.</span>
+      <span class="en">I build Python backends and data pipelines that work with real-world data, not tutorial data.</span>
+    </p>
+
+    <nav aria-label="Secciones">
+      <ul class="toc">
+        <li><a href="#sobre-mi" data-sec="sobre-mi"><span class="es">Sobre mí</span><span class="en">About</span></a></li>
+        <li><a href="#proyectos" data-sec="proyectos"><span class="es">Proyectos</span><span class="en">Projects</span></a></li>
+        <li><a href="#experiencia" data-sec="experiencia"><span class="es">Experiencia</span><span class="en">Experience</span></a></li>
+        <li><a href="#publicaciones" data-sec="publicaciones"><span class="es">Publicaciones</span><span class="en">Publications</span></a></li>
+        <li><a href="#contacto" data-sec="contacto"><span class="es">Contacto</span><span class="en">Contact</span></a></li>
+      </ul>
+    </nav>
+
+    <figure class="map" id="map">
+      <canvas id="mapa" role="img" aria-label="Mapa de Colombia con las sedes de salud del REPS agrupadas por municipio"></canvas>
+      <div class="tip" id="tip"></div>
+      <figcaption>
+        <span class="es"><b id="total-es">76.821</b> sedes de salud del REPS en <b id="mun-es">1.120</b> municipios. Pasa el cursor por el mapa.</span>
+        <span class="en"><b id="total-en">76,821</b> healthcare sites from the REPS registry across <b id="mun-en">1,120</b> municipalities. Hover the map.</span>
+        <span class="legend">
+          <span><i style="background:var(--teal)"></i><span class="es">mayoría pública</span><span class="en">mostly public</span></span>
+          <span><i style="background:var(--indigo)"></i><span class="es">mayoría privada</span><span class="en">mostly private</span></span>
+        </span>
+      </figcaption>
+    </figure>
+
+    <div class="social">
+      <a href="https://github.com/L30N4RD018" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg></a>
+      <a href="https://www.linkedin.com/in/leonardomendoza-dev" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2ZM7.1 20.5H3.5V9h3.6v11.5ZM22.2 0H1.8C.8 0 0 .8 0 1.7v20.6c0 .9.8 1.7 1.8 1.7h20.4c1 0 1.8-.8 1.8-1.7V1.7C24 .8 23.2 0 22.2 0Z"/></svg></a>
+      <a href="mailto:leonardomendoza2003@gmail.com" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
+      <button class="lang" id="lang" type="button" aria-label="Cambiar idioma / Change language"><span class="es">EN</span><span class="en">ES</span></button>
+    </div>
+  </header>
+
+  <!-- ============ COLUMNA DERECHA ============ -->
+  <main>
+
+    <section id="sobre-mi" aria-label="Sobre mí">
+      <h2 class="label"><span class="es">Sobre mí</span><span class="en">About</span></h2>
+      <div class="es">
+        <p>Soy ingeniero de sistemas y trabajo en <strong>desarrollo backend e ingeniería de datos</strong>, sobre todo con Python, FastAPI y PostgreSQL. Casi todo mi trabajo ha sido en el sector salud en Colombia, donde la información rara vez llega limpia: registros públicos sin API, normas que solo existen como PDF escaneados y formatos de archivo de hace más de veinte años.</p>
+        <p>En FUNDASABERES estuve a cargo del backend y del modelo de datos de <strong>una plataforma de procesos de selección que está en producción</strong>, y construí <strong>un visor geográfico de toda la red de prestadores de salud del país</strong>. Antes, como practicante, automaticé la extracción del registro nacional de prestadores desde un portal sin API.</p>
+        <p>Disfruto modelar datos y procuro dejar sistemas que la siguiente persona pueda entender y mantener. Soy coautor de dos artículos publicados por Springer.</p>
+      </div>
+      <div class="en">
+        <p>I'm a systems engineer working in <strong>backend development and data engineering</strong>, mostly with Python, FastAPI, and PostgreSQL. Most of my work has been in Colombia's public health sector, where data rarely comes in a clean format: government registries without an API, regulations that only exist as scanned PDFs, and file formats designed more than twenty years ago.</p>
+        <p>At FUNDASABERES I owned the backend and data model of <strong>a selection process platform that runs in production</strong>, and built <strong>a web map of the country's entire healthcare provider network</strong>. Before that, as an intern, I automated the extraction of the national provider registry from a website with no API.</p>
+        <p>I enjoy data modeling, and I try to leave systems that the next person can understand and maintain. I co-authored two papers published by Springer.</p>
+      </div>
+      <div class="stats reveal">
+        <div><b>19.447</b><span class="es">sedes de salud en el visor, con rutas por carretera</span><span class="en">health facilities in the web map, with road routing</span></div>
+        <div><b>20+</b><span class="es">procesos de selección reales en la plataforma</span><span class="en">real selection processes on the platform</span></div>
+        <div><b>&lt; 0,5 s</b><span class="es">por ruta, sobre redes viales de 1,4 M de nodos</span><span class="en">per route, over road networks of 1.4M nodes</span></div>
+      </div>
+    </section>
+
+    <section id="proyectos" aria-label="Proyectos">
+      <h2 class="label"><span class="es">Proyectos</span><span class="en">Projects</span></h2>
+      <ul class="list">
+
+        <li class="item reveal">
+          <div class="thumb"><img src="img/geovisor-nacional.webp" width="1600" height="900" alt="Geovisor: mapa nacional de sedes de salud" loading="lazy"></div>
+          <div>
+            <h3><span class="es">Geovisor: la red de salud de Colombia en un mapa</span><span class="en">Geovisor: Colombia's healthcare network on a map</span></h3>
+            <p class="es">Visor geográfico para analizar las redes de referencia en salud. Reúne las 19.447 sedes del REPS en los 33 departamentos y calcula rutas por carretera entre ellas en menos de medio segundo. Integra 6,8 GB de cartografía del DANE y de OpenStreetMap, exporta mapas listos para imprimir y funciona sin conexión.</p>
+            <p class="en">A web map for analyzing healthcare referral networks. It brings together all 19,447 facilities in the national registry across 33 departments and calculates road routes between them in under half a second. It combines 6.8 GB of maps from DANE and OpenStreetMap, exports print-ready maps, and works offline.</p>
+            <div class="chips"><span>Python</span><span>FastAPI</span><span>GeoPandas</span><span>MapLibre</span><span>SQLite</span></div>
+          </div>
+        </li>
+
+        <li class="item reveal">
+          <div class="thumb"><img src="img/sefp.webp" width="1600" height="900" alt="Página de inicio de SEFP" loading="lazy"></div>
+          <div>
+            <h3>SEFP <span class="badge"><span class="es">en producción</span><span class="en">in production</span></span><br><span class="sub"><span class="es">Plataforma de procesos de selección</span><span class="en">Selection process platform</span></span></h3>
+            <p class="es">Con ella FUNDASABERES adelanta procesos de selección para otras entidades: inscripción, exámenes en línea con supervisión por video y evaluación. Proyecto de equipo en el que estuve a cargo del backend y del modelo de datos, y escribí la mayor parte de sus pruebas automatizadas.</p>
+            <p class="en">FUNDASABERES uses it to run selection processes for other organizations: registration, proctored online exams, and evaluation. A team project in which I owned the backend and the data model and wrote most of its automated tests.</p>
+            <div class="chips"><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span><span>pytest</span><span>Docker</span></div>
+          </div>
+        </li>
+
+        <li class="item reveal">
+          <div class="thumb"><img src="img/reps.webp" width="1280" height="720" alt="Diagrama del extractor del REPS" loading="lazy"></div>
+          <div>
+            <h3><a href="https://github.com/L30N4RD018/reps-scraper">REPS Scraper<span class="arrow">↗</span></a></h3>
+            <p class="es">Extrae el registro nacional de prestadores de salud desde un portal sin API: los 932 hospitales públicos del país con sus sedes, servicios y capacidad instalada. Guarda su avance y continúa donde quedó si el portal falla.</p>
+            <p class="en">Extracts Colombia's national healthcare provider registry from a website with no API: all 932 public hospitals with their facilities, services, and installed capacity. It saves its progress and resumes when the site fails.</p>
+            <div class="chips"><span>Python</span><span>Playwright</span><span>SQLite</span></div>
+          </div>
+        </li>
+
+        <li class="item reveal">
+          <div class="thumb"><img src="img/doc-ocr.webp" width="1280" height="720" alt="Diagrama de doc-ocr" loading="lazy"></div>
+          <div>
+            <h3><a href="https://github.com/L30N4RD018/doc-ocr">doc-ocr<span class="arrow">↗</span></a><br><span class="sub"><span class="es">De PDF escaneado a datos</span><span class="en">From scanned PDF to data</span></span></h3>
+            <p class="es">Convierte normas escaneadas en texto consultable conservando sus tablas. Detecta la estructura de la página antes del OCR, así las columnas no se mezclan.</p>
+            <p class="en">Turns scanned regulations into searchable text while keeping their tables intact. It detects the page layout before running OCR, so columns don't get mixed up.</p>
+            <div class="chips"><span>Python</span><span>OpenCV</span><span>pdfplumber</span></div>
+          </div>
+        </li>
+
+        <li class="item reveal">
+          <div class="when">NASA Space Apps · 2025</div>
+          <div>
+            <h3><a href="https://github.com/L30N4RD018/nasa-studies-api">NASA Studies API<span class="arrow">↗</span></a></h3>
+            <p class="es">API para explorar 1.119 estudios de biología espacial de la NASA. Filtra por organismo y palabras clave, y redacta un título y un resumen para cualquier grupo de estudios con un modelo de lenguaje que corre en local, sin servicios externos.</p>
+            <p class="en">An API for exploring 1,119 NASA space biology studies. It filters by organism and keyword, and writes a title and summary for any group of studies with a language model that runs locally, with no external services.</p>
+            <div class="chips"><span>FastAPI</span><span>llama.cpp</span><span>GGUF</span></div>
+          </div>
+        </li>
+
+        <li class="item reveal">
+          <div class="when"><span class="es">Proyecto de grado · 2025</span><span class="en">Capstone · 2025</span></div>
+          <div>
+            <h3><a href="https://github.com/ZenoexORG/vacs-backend">VACS<span class="arrow">↗</span></a><br><span class="sub"><span class="es">Control de acceso vehicular</span><span class="en">Vehicle access control</span></span></h3>
+            <p class="es">Backend de un sistema de control de acceso vehicular, construido con mi equipo y organizado en módulos para vehículos, registros de acceso, incidentes y permisos. Publicado por Springer.</p>
+            <p class="en">Backend of a vehicle access control system, built with my team and organized into modules for vehicles, access logs, incidents, and permissions. Published by Springer.</p>
+            <div class="chips"><span>NestJS</span><span>TypeScript</span><span>PostgreSQL</span><span>Redis</span></div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="experiencia" aria-label="Experiencia">
+      <h2 class="label"><span class="es">Experiencia</span><span class="en">Experience</span></h2>
+      <ul class="list">
+        <li class="item reveal">
+          <div class="when"><span class="es">Ene – Sep 2026</span><span class="en">Jan – Sep 2026</span></div>
+          <div>
+            <h3><span class="es">Ingeniero de Software</span><span class="en">Software Engineer</span> · FUNDASABERES</h3>
+            <ul class="es">
+              <li>A cargo del backend y del modelo de datos de SEFP, en producción desde julio de 2026.</li>
+              <li>Geovisor: 19.447 sedes en los 33 departamentos y rutas por carretera en menos de medio segundo.</li>
+              <li>Conversor de los RIPS (facturación en salud) del formato del año 2000 al que exige la normativa de 2023.</li>
+              <li>Herramienta que convierte normas escaneadas en texto consultable, conservando sus tablas.</li>
+            </ul>
+            <ul class="en">
+              <li>Owned the backend and data model of SEFP, in production since July 2026.</li>
+              <li>Geovisor: 19,447 facilities in all 33 departments, with road routes in under half a second.</li>
+              <li>Converter for health billing records (RIPS) from the 2000 format to the one required by 2023 regulations.</li>
+              <li>A tool that turns scanned regulations into searchable text while keeping their tables intact.</li>
+            </ul>
+            <div class="chips"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>Alembic</span><span>Docker</span></div>
+          </div>
+        </li>
+        <li class="item reveal">
+          <div class="when"><span class="es">Jun – Dic 2025</span><span class="en">Jun – Dec 2025</span></div>
+          <div>
+            <h3><span class="es">Practicante de Ingeniería de Software</span><span class="en">Software Engineer Intern</span> · FUNDASABERES</h3>
+            <ul class="es">
+              <li>La mayor parte del backend de COMPETEA, la primera versión de la plataforma, con más de 20 procesos de selección reales.</li>
+              <li>Despliegues a producción automatizados con GitHub Actions, con copia de la base de datos antes de cada migración.</li>
+              <li>Extractor del registro nacional de prestadores de salud (REPS) desde un portal sin API.</li>
+            </ul>
+            <ul class="en">
+              <li>Built most of the backend of COMPETEA, the platform's first version, which ran more than 20 real selection processes.</li>
+              <li>Automated production deployments with GitHub Actions, backing up the database before every migration.</li>
+              <li>Built the extractor for the national healthcare provider registry (REPS) from a website with no API.</li>
+            </ul>
+            <div class="chips"><span>FastAPI</span><span>Next.js</span><span>GitHub Actions</span><span>Playwright</span></div>
+          </div>
+        </li>
+      </ul>
+      <div class="reveal" style="margin-top:2rem">
+        <dl class="skills">
+          <dt><span class="es">Backend</span><span class="en">Backend</span></dt><dd>Python · FastAPI · SQLAlchemy · Alembic · Pydantic · NestJS · TypeScript</dd>
+          <dt><span class="es">Datos</span><span class="en">Data</span></dt><dd>PostgreSQL · SQLite · Redis · GeoPandas · Playwright · OpenCV</dd>
+          <dt><span class="es">Entrega</span><span class="en">Delivery</span></dt><dd>Docker · GitHub Actions · pytest · Linux</dd>
+          <dt><span class="es">Formación</span><span class="en">Education</span></dt><dd><span class="es">Ingeniería de Sistemas y Computación</span><span class="en">B.S. Systems and Computer Engineering</span> · Universidad Tecnológica de Bolívar · 2021–2025</dd>
+          <dt><span class="es">Idiomas</span><span class="en">Languages</span></dt><dd><span class="es">Español nativo · Inglés B2</span><span class="en">Spanish (native) · English (B2)</span></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section id="publicaciones" aria-label="Publicaciones">
+      <h2 class="label"><span class="es">Publicaciones</span><span class="en">Publications</span></h2>
+      <div class="pub reveal">
+        <a href="https://doi.org/10.1007/978-3-032-08206-0_19">VACS: A Modular Software System for Vehicular Access Control ↗</a>
+        <small>Springer · Communications in Computer and Information Science · WEA 2025</small>
+      </div>
+      <div class="pub reveal">
+        <a href="https://doi.org/10.1007/978-3-032-08203-9_19">An Optimized Approach for Automatic License Plate Recognition in Open-Access Environments ↗</a>
+        <small>Springer · Communications in Computer and Information Science · WEA 2025</small>
+      </div>
+    </section>
+
+    <section id="contacto" aria-label="Contacto">
+      <h2 class="label"><span class="es">Contacto</span><span class="en">Contact</span></h2>
+      <div class="contact reveal">
+        <h2><span class="es">¿Trabajamos juntos?</span><span class="en">Let's work together</span></h2>
+        <p class="es">Busco trabajo como ingeniero backend o de datos, remoto o en Colombia. También tomo proyectos de automatización y extracción de datos.</p>
+        <p class="en">I'm looking for backend or data engineering roles, remote or in Colombia. I also take on automation and data extraction projects.</p>
+        <a class="btn" href="mailto:leonardomendoza2003@gmail.com"><span class="es">Escríbeme</span><span class="en">Email me</span> →</a>
+        <p style="margin:.9rem 0 0;font-family:var(--mono);font-size:.8rem;color:var(--muted)">leonardomendoza2003@gmail.com</p>
+      </div>
+    </section>
+
+    <footer>
+      <p class="es">Hecho a mano, sin frameworks. El mapa usa datos públicos: sedes del REPS (datos.gov.co) por municipio, coordenadas de DIVIPOLA y el contorno de Natural Earth.</p>
+      <p class="en">Hand-built, no frameworks. The map uses public data: REPS sites (datos.gov.co) by municipality, DIVIPOLA coordinates, and the Natural Earth outline.</p>
+      <nav>
+        <a href="jobstracker/">JobsTracker</a>
+        <a href="privacidad.html"><span class="es">Privacidad</span><span class="en">Privacy</span></a>
+        <a href="condiciones.html"><span class="es">Condiciones</span><span class="en">Terms</span></a>
+      </nav>
+    </footer>
+  </main>
+</div>
+
+<script src="js/mapa.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // idioma
+  document.getElementById("lang").addEventListener("click", function () {
+    var next = root.dataset.lang === "en" ? "es" : "en";
+    root.dataset.lang = next; root.lang = next;
+    try { localStorage.setItem("lang", next); } catch (e) {}
+  });
+
+  // luz que sigue el cursor
+  var spot = document.querySelector(".spot");
+  window.addEventListener("pointermove", function (e) {
+    spot.style.setProperty("--mx", e.clientX + "px");
+    spot.style.setProperty("--my", e.clientY + "px");
+  }, { passive: true });
+
+  // sección activa en el índice
+  var links = {};
+  document.querySelectorAll(".toc a").forEach(function (a) { links[a.dataset.sec] = a; });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        Object.values(links).forEach(function (a) { a.classList.remove("on"); });
+        if (links[en.target.id]) links[en.target.id].classList.add("on");
+      }
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll("main section").forEach(function (s) { io.observe(s); });
+
+  // aparición al hacer scroll
+  var rv = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); rv.unobserve(en.target); } });
+  }, { rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll(".reveal").forEach(function (el) { rv.observe(el); });
+
+  // ---------- mapa ----------
+  var M = window.MAPA;
+  if (!M) return;
+  var fmtEs = new Intl.NumberFormat("es-CO"), fmtEn = new Intl.NumberFormat("en-US");
+  document.getElementById("total-es").textContent = fmtEs.format(M.total);
+  document.getElementById("total-en").textContent = fmtEn.format(M.total);
+  document.getElementById("mun-es").textContent = fmtEs.format(M.municipios);
+  document.getElementById("mun-en").textContent = fmtEn.format(M.municipios);
+
+  var box = document.getElementById("map"), cv = document.getElementById("mapa"), tip = document.getElementById("tip");
+  var ctx = cv.getContext("2d"), outline = new Path2D(M.dep);
+  var pts = [];
+  for (var i = 0; i < M.p.length; i += 4) {
+    var n = M.p[i + 2], ese = M.p[i + 3];
+    pts.push({ x: M.p[i], y: M.p[i + 1], n: n, pub: ese / n >= 0.5, r: 1.3 + Math.sqrt(n) * 0.3, name: M.n[i / 4],
+      delay: (M.p[i + 1] / M.h) * 1200 + Math.random() * 500, ph: Math.random() * 6.28 });
+  }
+  pts.sort(function (a, b) { return b.n - a.n; });   // los grandes debajo
+  var k = 1, ox = 0, oy = 0, dpr = 1, start = null, hover = null, visible = true;
+
+  function fit() {
+    var w = box.clientWidth, h = box.clientHeight - 64;  // deja espacio a la leyenda
+    if (w < 10 || h < 10) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(box.clientHeight * dpr);
+    k = Math.min(w / M.w, h / M.h);
+    ox = (w - M.w * k) / 2; oy = 0;
+    if (window.innerWidth > 1024) ox = w - M.w * k;
+  }
+
+  function draw(t) {
+    if (start === null) start = t;
+    var el = reduce ? 1e9 : t - start;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.save();
+    ctx.translate(ox, oy); ctx.scale(k, k);
+    ctx.fillStyle = "rgba(129,140,248,.035)"; ctx.fill(outline);
+    ctx.lineWidth = 1.2 / k; ctx.strokeStyle = "rgba(148,163,255,.22)"; ctx.stroke(outline);
+    for (var j = 0; j < pts.length; j++) {
+      var p = pts[j], a = Math.min(1, Math.max(0, (el - p.delay) / 500));
+      if (a <= 0) continue;
+      var tw = reduce ? 1 : 0.75 + 0.25 * Math.sin(t / 900 + p.ph);
+      var col = p.pub ? "94,234,212" : "129,140,248";
+      var rad = p.r * (p === hover ? 1.6 : 1) / Math.max(k, 0.35) * 0.55;
+      ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, 6.2832);
+      ctx.fillStyle = "rgba(" + col + "," + (0.55 * a * tw + (p === hover ? .4 : 0)) + ")"; ctx.fill();
+      if (p.n > 1500) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, rad * 1.7, 0, 6.2832);
+        ctx.fillStyle = "rgba(" + col + "," + 0.06 * a + ")"; ctx.fill();
+      }
+    }
+    ctx.restore();
+    if (visible && !reduce) requestAnimationFrame(draw);
+  }
+
+  function nearest(mx, my) {
+    var x = (mx - ox) / k, y = (my - oy) / k, best = null, bd = 18 / k;
+    for (var j = 0; j < pts.length; j++) {
+      var dx = pts[j].x - x, dy = pts[j].y - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < bd) { bd = d; best = pts[j]; }
+    }
+    return best;
+  }
+  cv.addEventListener("pointermove", function (e) {
+    var r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    hover = nearest(mx, my);
+    if (hover) {
+      var en = root.dataset.lang === "en";
+      tip.textContent = hover.name + " · " + (en ? fmtEn : fmtEs).format(hover.n) + (en ? " sites" : " sedes");
+      tip.style.left = (hover.x * k + ox) + "px"; tip.style.top = (hover.y * k + oy) + "px"; tip.style.opacity = 1;
+    } else { tip.style.opacity = 0; }
+    if (reduce) draw(performance.now());
+  });
+  cv.addEventListener("pointerleave", function () { hover = null; tip.style.opacity = 0; if (reduce) draw(performance.now()); });
+
+  new IntersectionObserver(function (en) {
+    var was = visible; visible = en[0].isIntersecting;
+    if (visible && !was && !reduce) requestAnimationFrame(draw);
+  }).observe(box);
+  window.addEventListener("resize", function () { fit(); if (reduce) draw(performance.now()); });
+  fit(); requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
